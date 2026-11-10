@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FarmBid.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+96e8b56d6966b836c3569c2a39612caa4fe1c7c9")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cbfb3ae480939846ceccbc1e26791e6b699fac7c")]
 [assembly: System.Reflection.AssemblyProductAttribute("FarmBid.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FarmBid.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
