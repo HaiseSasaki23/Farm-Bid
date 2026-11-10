@@ -7,19 +7,14 @@ obj/
 .vs/
 *.user
 *.suo
-
-# IDE settings
-.vscode/
-
-# User-specific settings
 *.userosscache
 *.sln.docstates
 
 # Logs
 *.log
 
-# Environment and secrets
+# Environment variables and secrets
 .env
 .env.*
 !.env.example
-
+secrets.json
