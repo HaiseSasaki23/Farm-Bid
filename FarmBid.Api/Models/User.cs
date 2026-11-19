@@ -1,6 +1,7 @@
 
 namespace FarmBid.Api.Models;
 
+
 public class User
 {
     public long Id { get; set; }
@@ -28,6 +29,9 @@ public class User
     public DateTime? EmailVerifiedAt { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public ICollection<AiMarketReport> GeneratedReports { get; set; }
+    = new List<AiMarketReport>();
 }
 
 public enum UserRole
