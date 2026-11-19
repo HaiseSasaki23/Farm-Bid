@@ -1,6 +1,8 @@
 using FarmBid.Api.Services;
 using FarmBid.Api.Data;
 using FarmBid.Api.Repositories;
+using FarmBid.Api.Repositories.AI;
+using FarmBid.Api.Services.AI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -43,6 +45,11 @@ builder.Services.AddScoped<ListingService>();
 
 builder.Services.AddScoped<BidRepository>();
 builder.Services.AddScoped<BidService>();
+
+builder.Services.AddScoped<StatisticsRepository>();
+builder.Services.AddScoped<MarketInsightsService>();
+
+builder.Services.AddScoped<AIReportService>();
 
 // ==========================================
 // JWT AUTHENTICATION
@@ -131,6 +138,8 @@ builder.Services.AddHttpClient<GeminiService>(client =>
 {
     client.BaseAddress = new Uri(
         "https://generativelanguage.googleapis.com/");
+
+    client.Timeout = TimeSpan.FromMinutes(3);
 });
 
 // ==========================================

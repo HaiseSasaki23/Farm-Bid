@@ -19,6 +19,7 @@ public class FarmBidDbContext : DbContext
     public DbSet<ListingImage> ListingImages => Set<ListingImage>();
     public DbSet<AiAnalysis> AiAnalyses => Set<AiAnalysis>();
     public DbSet<Transaction> Transactions => Set<Transaction>();
+    public DbSet<AiMarketReport> AiMarketReports => Set<AiMarketReport>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -319,6 +320,52 @@ public class FarmBidDbContext : DbContext
             entity.HasOne(a => a.GeneratedByUser)
                 .WithMany()
                 .HasForeignKey(a => a.GeneratedBy)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // AI MARKET REPORT
+        modelBuilder.Entity<AiMarketReport>(entity =>
+        {
+            entity.ToTable("ai_market_report");
+
+            entity.HasKey(r => r.ReportId);
+
+            entity.Property(r => r.ReportId)
+                .HasColumnName("report_id");
+
+            entity.Property(r => r.GeneratedBy)
+                .HasColumnName("generated_by");
+
+            entity.Property(r => r.ReportType)
+                .HasColumnName("report_type")
+                .HasMaxLength(30)
+                .IsRequired();
+
+            entity.Property(r => r.PeriodStart)
+                .HasColumnName("period_start")
+                .HasColumnType("date");
+
+            entity.Property(r => r.PeriodEnd)
+                .HasColumnName("period_end")
+                .HasColumnType("date");
+
+            entity.Property(r => r.ReportContent)
+                .HasColumnName("report_content")
+                .HasColumnType("longtext")
+                .IsRequired();
+
+            entity.Property(r => r.ModelName)
+                .HasColumnName("model_name")
+                .HasMaxLength(100);
+
+            entity.Property(r => r.GeneratedAt)
+                .HasColumnName("generated_at")
+                .HasColumnType("datetime")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            entity.HasOne(r => r.GeneratedByUser)
+                .WithMany(u => u.GeneratedReports)
+                .HasForeignKey(r => r.GeneratedBy)
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
