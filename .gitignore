@@ -1,34 +1,42 @@
-
-# Build output
+# Build Output (.NET / ASP.NET)
 bin/
 obj/
 
-# Visual Studio files
+# Visual Studio
 .vs/
 *.user
 *.suo
 *.userosscache
 *.sln.docstates
 
-# Logs
-*.log
 
-# Environment variables and secrets
+# Node.js / Frontend
+node_modules/
+dist/
+
+# Environment Variables & Secrets
 .env
 .env.*
+.env.local
+*.local
 !.env.example
 secrets.json
 
-# ASP.NET Core local development settings
+# ASP.NET Core Configuration
 **/appsettings.Development.json
 **/appsettings.*.json
 !**/appsettings.json
 
-# Local database and secret files
+# Local Database Files
 *.db
 *.sqlite
 *.sqlite3
 
-# Temporary testing and outdated migrations
+# Logs & Temporary Files
+*.log
+.DS_Store
+Thumbs.db
+
+# Project-Specific Exclusions
 FarmBid.Api/Controllers/TestAuthController.cs
 FarmBid.Api/Migrations/
