@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, Calendar, Gavel, Info, MapPin, Package, User } from 'lucide-react';
+import { ArrowLeft, Calendar, Check, Gavel, Info, MapPin, Package, User } from 'lucide-react';
 import { bidService, harvestService } from '../../api';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useQuery } from '../../hooks/useQuery';
-import { dateShort, num, peso, timeAgo } from '../../lib/format';
-import { CropArt, ErrorBanner, Loading, PriceTag, Stars, StatusBadge } from '../../components/ui';
+import { GRADE_INFO, TRAIT_LABEL, dateShort, num, peso, timeAgo } from '../../lib/format';
+import { CropArt, ErrorBanner, GradeBadge, Loading, PriceTag, SellerStars, StatusBadge } from '../../components/ui';
 
 export function ListingDetail() {
   const id = Number(useParams().id);
@@ -21,17 +21,13 @@ export function ListingDetail() {
   );
 
   const [amount, setAmount] = useState('');
-  const [qty, setQty] = useState('');
-  const [errors, setErrors] = useState<{ amount?: string; qty?: string }>({});
+  const [errors, setErrors] = useState<{ amount?: string }>({});
   const [serverError, setServerError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const listing = q.data?.listing;
   useEffect(() => {
-    if (listing && amount === '' && qty === '') {
-      setAmount(String(listing.startingPrice));
-      setQty(String(listing.quantity));
-    }
+    if (listing && amount === '') setAmount(String(listing.startingPrice));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listing?.harvestId]);
 
@@ -40,25 +36,23 @@ export function ListingDetail() {
 
   const myBids = q.data.mine;
   const open = listing.status === 'Available';
-  const total = Number(amount) * Number(qty);
+  const total = Number(amount) * listing.quantity;
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setServerError(null);
     const errs: typeof errors = {};
     const a = Number(amount);
-    const n = Number(qty);
     if (!(a > 0)) errs.amount = 'Enter your price per ' + listing.unit + '.';
     else if (a < listing.startingPrice) errs.amount = `Bid at least ${peso(listing.startingPrice)}, the starting price.`;
-    if (!(n > 0)) errs.qty = 'Enter how much you want.';
-    else if (n > listing.quantity) errs.qty = `Only ${num(listing.quantity)} ${listing.unit} available.`;
     setErrors(errs);
     if (Object.keys(errs).length) return;
 
     setBusy(true);
     try {
-      await bidService.submit({ harvestId: id, bidAmount: a, quantity: n });
-      toast('Bid placed. The farmer has been notified.');
+      // Bulk sale: every bid is for the whole lot.
+      await bidService.submit({ harvestId: id, bidAmount: a, quantity: listing.quantity });
+      toast('Bid placed. The farmer has been notified.', 'coin');
     } catch (err) {
       setServerError(err instanceof Error ? err.message : 'Could not place your bid.');
     } finally {
@@ -80,7 +74,20 @@ export function ListingDetail() {
               </div>
               <StatusBadge status={listing.status} />
             </div>
-            <Stars value={listing.quality} />
+            <div className="stack" style={{ gap: 10 }}>
+              <div className="row" style={{ gap: 10 }}>
+                <GradeBadge grade={listing.grade} />
+                <span className="small muted">{GRADE_INFO[listing.grade].label}: {GRADE_INFO[listing.grade].blurb}</span>
+              </div>
+              {listing.traits.length > 0 && (
+                <div className="row" style={{ gap: 6 }}>
+                  {listing.traits.map((t) => <span key={t} className="trait"><Check size={13} /> {TRAIT_LABEL[t]}</span>)}
+                </div>
+              )}
+              <div className="row small muted" style={{ gap: 8 }}>
+                Seller rating <SellerStars rating={listing.farmerRating} />
+              </div>
+            </div>
             <p style={{ lineHeight: 1.65, maxWidth: '62ch' }}>{listing.description}</p>
             <dl className="kv" style={{ borderTop: '1px solid var(--line)', paddingTop: 16 }}>
               <dt><Package size={14} style={{ verticalAlign: -2 }} /> Quantity</dt><dd className="num">{num(listing.quantity)} {listing.unit}</dd>
@@ -110,11 +117,7 @@ export function ListingDetail() {
                   </div>
                   {errors.amount && <span className="error-text">{errors.amount}</span>}
                 </div>
-                <div className="field">
-                  <label htmlFor="qty">Quantity ({listing.unit})</label>
-                  <input id="qty" type="number" step="any" min="0" className={`input ${errors.qty ? 'invalid' : ''}`} value={qty} onChange={(e) => setQty(e.target.value)} />
-                  {errors.qty && <span className="error-text">{errors.qty}</span>}
-                </div>
+                <div className="banner info"><Package size={18} /><span>Bulk sale. You buy the whole lot of <strong>{num(listing.quantity)} kg</strong> or nothing, so just name your price per kg.</span></div>
                 <div className="spread" style={{ padding: '10px 0', borderTop: '1px solid var(--line)' }}>
                   <span className="muted">Total offer</span>
                   <strong className="num" style={{ fontSize: '1.2rem', fontFamily: 'var(--display)' }}>{Number.isFinite(total) ? peso(total) : '—'}</strong>

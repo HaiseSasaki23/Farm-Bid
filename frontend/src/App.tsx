@@ -14,6 +14,7 @@ import { BuyerDashboard } from './pages/buyer/BuyerDashboard';
 import { Browse } from './pages/buyer/Browse';
 import { ListingDetail } from './pages/buyer/ListingDetail';
 import { MyBids } from './pages/buyer/MyBids';
+import { Insights } from './pages/farmer/Insights';
 
 function Home() {
   const { user, ready } = useAuth();
@@ -32,6 +33,7 @@ export function App() {
       <Route path="/farmer" element={<AppShell role="Farmer" />}>
         <Route index element={<FarmerDashboard />} />
         <Route path="listings" element={<MyListings />} />
+        <Route path="insights" element={<Insights />} />
         <Route path="listings/:id/bids" element={<ListingBids />} />
         <Route path="transactions" element={<Transactions role="Farmer" />} />
         <Route path="notifications" element={<Notifications />} />

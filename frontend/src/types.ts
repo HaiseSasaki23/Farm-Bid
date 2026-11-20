@@ -20,6 +20,9 @@ export interface User {
 /** What other users are allowed to see about someone. */
 export type PublicUser = Pick<User, 'userId' | 'fullName' | 'role' | 'farmName' | 'buyerType' | 'location'>;
 
+export type Grade = 'A' | 'B' | 'C';
+export type Trait = 'freshlyPicked' | 'sorted' | 'cleaned' | 'packed';
+
 export type ListingStatus = 'Available' | 'Reserved' | 'Sold' | 'Unavailable';
 
 export interface HarvestListing {
@@ -28,7 +31,8 @@ export interface HarvestListing {
   cropName: string;
   quantity: number;
   unit: string;
-  quality: number; // 1-5 stars
+  grade: Grade; // declared by the farmer; see GRADE_INFO for what each grade means
+  traits: Trait[]; // checkable facts about the harvest
   location: string;
   harvestDate: string; // ISO date
   startingPrice: number; // per unit
@@ -73,6 +77,22 @@ export type NotificationType =
   | 'TransactionUpdate'
   | 'ListingUpdate';
 
+/** A buyer's rating of a farmer, given once per completed transaction. */
+export interface Rating {
+  ratingId: number;
+  transactionId: number;
+  farmerId: number;
+  buyerId: number;
+  stars: number; // 1-5
+  comment?: string;
+  createdAt: string;
+}
+
+export interface SellerRating {
+  average: number | null; // null = no ratings yet ("New seller")
+  count: number;
+}
+
 export interface AppNotification {
   notificationId: number;
   userId: number;
@@ -100,6 +120,7 @@ export interface AIAnalysis {
 export interface ListingView extends HarvestListing {
   farmer: PublicUser;
   bidCount: number; // pending bids
+  farmerRating: SellerRating;
 }
 
 export interface BidView extends Bid {
@@ -112,9 +133,15 @@ export interface TransactionView extends Transaction {
   listing: HarvestListing;
   farmer: PublicUser;
   buyer: PublicUser;
+  rating: Rating | null; // the buyer's rating of this sale, if given
 }
 
 // ---- Inputs ----
+
+export interface RatingInput {
+  stars: number;
+  comment?: string;
+}
 
 export interface RegisterInput {
   fullName: string;
@@ -130,7 +157,8 @@ export interface ListingInput {
   cropName: string;
   quantity: number;
   unit: string;
-  quality: number;
+  grade: Grade;
+  traits: Trait[];
   location: string;
   harvestDate: string;
   startingPrice: number;
@@ -144,6 +172,6 @@ export interface ListingFilters {
   minPrice?: number;
   maxPrice?: number;
   minQuantity?: number;
-  minQuality?: number;
-  sort?: 'newest' | 'lowestPrice' | 'highestPrice';
+  minGrade?: Grade; // 'A' = grade A only, 'B' = B or better
+  sort?: 'newest' | 'lowestPrice' | 'highestPrice' | 'topRated';
 }

@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { BadgeCheck, Eye, EyeOff, Gavel, MapPin, Pencil, Plus, Sprout, Trash2 } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { Plus, Sprout } from 'lucide-react';
 import { harvestService } from '../../api';
 import { useQuery } from '../../hooks/useQuery';
 import { useToast } from '../../context/ToastContext';
-import { dateShort, num } from '../../lib/format';
 import type { ListingInput, ListingStatus, ListingView } from '../../types';
 import { ListingForm } from '../../components/ListingForm';
-import { Confirm, CropArt, Empty, ErrorBanner, Loading, Modal, PageHeader, PriceTag, Stars, StatusBadge } from '../../components/ui';
+import { FarmerListingCard } from '../../components/FarmerListingCard';
+import { Confirm, Empty, ErrorBanner, Loading, Modal, PageHeader } from '../../components/ui';
 
 const FILTERS: ('All' | ListingStatus)[] = ['All', 'Available', 'Reserved', 'Sold', 'Unavailable'];
 
@@ -90,7 +90,7 @@ export function MyListings() {
       </div>
 
       {loading && !data ? (
-        <Loading />
+        <Loading variant="cards" />
       ) : shown.length === 0 ? (
         <div className="card">
           <Empty icon={<Sprout size={24} />} title={filter === 'All' ? 'No listings yet' : `No ${filter.toLowerCase()} listings`}>
@@ -98,50 +98,20 @@ export function MyListings() {
           </Empty>
         </div>
       ) : (
-        <div className="card">
-          <div className="table-wrap">
-            <table className="table stack">
-              <thead>
-                <tr><th>Product</th><th>Quantity</th><th>Quality</th><th>Starting price</th><th>Status</th><th>Bids</th><th /></tr>
-              </thead>
-              <tbody>
-                {shown.map((l) => {
-                  const locked = l.status === 'Reserved';
-                  return (
-                    <tr key={l.harvestId}>
-                      <td>
-                        <div className="cell-prod">
-                          <CropArt name={l.cropName} src={l.imagePath} size="sm" />
-                          <div>
-                            <div className="t">{l.cropName}</div>
-                            <div className="small faint"><MapPin size={12} style={{ verticalAlign: -1 }} /> {l.location} · harvested {dateShort(l.harvestDate)}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="num" data-label="Quantity">{num(l.quantity)} {l.unit}</td>
-                      <td data-label="Quality"><Stars value={l.quality} /></td>
-                      <td data-label="Starting price"><PriceTag amount={l.startingPrice} unit={l.unit} variant="quiet" /></td>
-                      <td data-label="Status"><StatusBadge status={l.status} /></td>
-                      <td className="num" data-label="Bids">{l.bidCount}</td>
-                      <td>
-                        <div className="cell-actions">
-                          <Link className="btn secondary sm" to={`/farmer/listings/${l.harvestId}/bids`}><Gavel size={15} /> Bids</Link>
-                          <button className="btn ghost icon" title={locked ? 'Locked while a transaction is pending' : 'Edit'} aria-label={`Edit ${l.cropName}`} disabled={locked} onClick={() => { setFormError(null); setForm({ mode: 'edit', listing: l }); }}><Pencil size={17} /></button>
-                          {l.status === 'Unavailable' ? (
-                            <button className="btn ghost icon" title="Reopen listing" aria-label={`Reopen ${l.cropName}`} onClick={() => act(() => harvestService.setStatus(l.harvestId, 'Available'), 'Listing is open for bids again.')}><Eye size={17} /></button>
-                          ) : (
-                            <button className="btn ghost icon" title="Close listing (mark unavailable)" aria-label={`Close ${l.cropName}`} disabled={locked || l.status === 'Sold'} onClick={() => setConfirm({ kind: 'close', listing: l })}><EyeOff size={17} /></button>
-                          )}
-                          <button className="btn ghost icon" title="Mark as sold" aria-label={`Mark ${l.cropName} as sold`} disabled={locked || l.status === 'Sold'} onClick={() => setConfirm({ kind: 'sold', listing: l })}><BadgeCheck size={17} /></button>
-                          <button className="btn ghost icon" title="Delete" aria-label={`Delete ${l.cropName}`} disabled={locked} onClick={() => setConfirm({ kind: 'delete', listing: l })}><Trash2 size={17} /></button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+        <div className="grid-3">
+          {shown.map((l) => (
+            <FarmerListingCard
+              key={l.harvestId}
+              listing={l}
+              actions={{
+                onEdit: () => { setFormError(null); setForm({ mode: 'edit', listing: l }); },
+                onClose: () => setConfirm({ kind: 'close', listing: l }),
+                onReopen: () => act(() => harvestService.setStatus(l.harvestId, 'Available'), 'Listing is open for bids again.'),
+                onSold: () => setConfirm({ kind: 'sold', listing: l }),
+                onDelete: () => setConfirm({ kind: 'delete', listing: l }),
+              }}
+            />
+          ))}
         </div>
       )}
 
@@ -168,7 +138,7 @@ export function MyListings() {
           onClose={() => setConfirm(null)}
         >
           {confirm.kind === 'delete' && <p>This removes the listing for good. {confirm.listing.bidCount > 0 ? `${confirm.listing.bidCount} pending ${confirm.listing.bidCount === 1 ? 'bid' : 'bids'} will be cancelled and the buyers told.` : ''}</p>}
-          {confirm.kind === 'sold' && <p>Use this when you sold the harvest outside Bidding Farm. The listing leaves the marketplace.</p>}
+          {confirm.kind === 'sold' && <p>Use this when you sold the harvest outside FarmBid. The listing leaves the marketplace.</p>}
           {confirm.kind === 'close' && <p>Buyers will no longer see this listing or place new bids. You can reopen it any time.</p>}
         </Confirm>
       )}

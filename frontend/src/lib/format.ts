@@ -1,3 +1,4 @@
+import type { Grade, Trait } from '../types';
 const phpFmt = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', minimumFractionDigits: 2, maximumFractionDigits: 2 });
 export const peso = (n: number) => phpFmt.format(n);
 export const num = (n: number) => new Intl.NumberFormat('en-PH').format(n);
@@ -44,6 +45,17 @@ const EMOJI: [RegExp, string, string][] = [
   [/coffee|cacao|cocoa/i, '🫘', '#e2cdbb'],
   [/sugar/i, '🎋', '#d6ecd0'],
 ];
+/**
+ * Photo files to try for a crop, most specific first. Drop JPGs into public/crops/:
+ *   "Rice (Jasmine)" -> /crops/rice-jasmine.jpg, then /crops/rice.jpg
+ *   "Tomato"         -> /crops/tomato.jpg
+ */
+export function cropPhotoSources(name: string): string[] {
+  const slug = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const full = slug(name);
+  const base = slug(name.split('(')[0]);
+  return [...new Set([full, base].filter(Boolean))].map((f) => `/crops/${f}.jpg`);
+}
 export function cropLook(name: string): { emoji: string; bg: string } {
   const hit = EMOJI.find(([re]) => re.test(name));
   return hit ? { emoji: hit[1], bg: hit[2] } : { emoji: '🌱', bg: '#dcebd2' };
@@ -69,4 +81,39 @@ export function readImage(file: File, max = 900): Promise<string> {
     };
     reader.readAsDataURL(file);
   });
+}
+/* ---------- Grades and traits ---------- */
+export const GRADE_INFO: Record<Grade, { label: string; blurb: string; rank: number }> = {
+  A: { label: 'Premium', blurb: 'Uniform size, fresh, no visible damage, well sorted.', rank: 3 },
+  B: { label: 'Standard', blurb: 'Mostly uniform with minor blemishes. Good for the general market.', rank: 2 },
+  C: { label: 'Economy', blurb: 'Mixed sizes or visible blemishes. Best for processing or feed.', rank: 1 },
+};
+
+export const TRAIT_LABEL: Record<Trait, string> = {
+  freshlyPicked: 'Freshly picked',
+  sorted: 'Sorted by size',
+  cleaned: 'Washed or cleaned',
+  packed: 'Packed for pickup',
+};
+export const TRAITS = Object.keys(TRAIT_LABEL) as Trait[];
+/* ---------- Crop categories (worked out from the crop name, so no backend field is needed yet) ---------- */
+export type Category = 'Vegetables' | 'Fruits' | 'Grains' | 'Root crops' | 'Other';
+
+export const CATEGORIES: { key: Category; emoji: string }[] = [
+  { key: 'Vegetables', emoji: '🍅' },
+  { key: 'Fruits', emoji: '🥭' },
+  { key: 'Grains', emoji: '🌾' },
+  { key: 'Root crops', emoji: '🥕' },
+  { key: 'Other', emoji: '🌱' },
+];
+
+const CATEGORY_RULES: [RegExp, Category][] = [
+  [/rice|palay|corn|mais|wheat|sorghum/i, 'Grains'],
+  [/carrot|potato|onion|garlic|ginger|cassava|camote|sweet potato|radish|turnip/i, 'Root crops'],
+  [/mango|banana|saging|pineapple|coconut|niyog|papaya|watermelon|melon|calamansi|orange|durian|lanzones|avocado/i, 'Fruits'],
+  [/tomato|cabbage|lettuce|pechay|eggplant|talong|ampalaya|squash|kalabasa|beans|sitaw|okra|cucumber|pepper|broccoli|kangkong/i, 'Vegetables'],
+];
+
+export function cropCategory(name: string): Category {
+  return CATEGORY_RULES.find(([re]) => re.test(name))?.[1] ?? 'Other';
 }

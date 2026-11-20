@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Gavel } from 'lucide-react';
+import { CalendarClock, Gavel, Package } from 'lucide-react';
 import { bidService } from '../../api';
 import { useQuery } from '../../hooks/useQuery';
 import { useToast } from '../../context/ToastContext';
@@ -47,7 +47,7 @@ export function MyBids() {
       </div>
 
       {loading && !data ? (
-        <Loading />
+        <Loading variant="cards" />
       ) : shown.length === 0 ? (
         <div className="card">
           <Empty icon={<Gavel size={24} />} title={tab === 'All' ? 'You have not placed any bids' : `No ${tab.toLowerCase()} bids`} action={tab === 'All' ? { to: '/buyer/browse', label: 'Browse harvests' } : undefined}>
@@ -55,39 +55,37 @@ export function MyBids() {
           </Empty>
         </div>
       ) : (
-        <div className="card">
-          <div className="table-wrap">
-            <table className="table stack">
-              <thead><tr><th>Product</th><th>Your offer</th><th>Quantity</th><th>Total</th><th>Placed</th><th>Status</th><th /></tr></thead>
-              <tbody>
-                {shown.map((b) => (
-                  <tr key={b.bidId}>
-                    <td>
-                      <div className="cell-prod">
-                        <CropArt name={b.listing?.cropName ?? ''} src={b.listing?.imagePath} size="sm" />
-                        <div>
-                          <div className="t">{b.listing?.cropName ?? 'Removed listing'}</div>
-                          <div className="small faint">{b.farmer.farmName ?? b.farmer.fullName}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td data-label="Your offer"><PriceTag amount={b.bidAmount} unit={b.listing?.unit} variant={b.status === 'Accepted' ? 'top' : b.status === 'Pending' ? undefined : 'muted-tag'} /></td>
-                    <td className="num" data-label="Quantity">{num(b.quantity)} {b.listing?.unit}</td>
-                    <td className="num strong" data-label="Total">{peso(b.bidAmount * b.quantity)}</td>
-                    <td className="small muted" data-label="Placed">{timeAgo(b.createdAt)}</td>
-                    <td data-label="Status"><StatusBadge status={b.status} /></td>
-                    <td>
-                      <div className="cell-actions">
-                        {b.status === 'Pending' && <button className="btn danger sm" onClick={() => setCancel(b)}>Cancel bid</button>}
-                        {b.status === 'Accepted' && <Link className="btn secondary sm" to="/buyer/transactions">View purchase</Link>}
-                        {b.listing && b.status !== 'Accepted' && <Link className="btn ghost sm" to={`/buyer/listings/${b.harvestId}`}>View listing</Link>}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <div className="deal-grid">
+          {shown.map((b) => (
+            <article key={b.bidId} className={`card deal${b.status === 'Accepted' ? ' won' : ''}`}>
+              <div className="deal-media">
+                <CropArt name={b.listing?.cropName ?? ''} src={b.listing?.imagePath} size="md" />
+                <span className="deal-status"><StatusBadge status={b.status} /></span>
+              </div>
+              <div className="deal-body">
+                <div className="deal-top">
+                  <div>
+                    <h3>{b.listing?.cropName ?? 'Removed listing'}</h3>
+                    <div className="small muted">{b.farmer.farmName ?? b.farmer.fullName}</div>
+                  </div>
+                  <div className="deal-total num">{peso(b.bidAmount * b.quantity)}</div>
+                </div>
+                <div className="deal-meta">
+                  <span className="num"><Package size={14} /> {num(b.quantity)} {b.listing?.unit}</span>
+                  <PriceTag amount={b.bidAmount} unit={b.listing?.unit} variant={b.status === 'Accepted' ? 'top' : b.status === 'Pending' ? undefined : 'muted-tag'} />
+                  <span><CalendarClock size={14} /> {timeAgo(b.createdAt)}</span>
+                </div>
+                <div className="deal-foot">
+                  <span className="small faint">{b.status === 'Accepted' ? 'Locked. Now a purchase.' : b.status === 'Pending' ? 'Waiting for the farmer' : ''}</span>
+                  <div className="cell-actions">
+                    {b.status === 'Pending' && <button className="btn danger sm" onClick={() => setCancel(b)}>Cancel bid</button>}
+                    {b.status === 'Accepted' && <Link className="btn primary sm" to="/buyer/transactions">View purchase</Link>}
+                    {b.listing && b.status !== 'Accepted' && <Link className="btn ghost sm" to={`/buyer/listings/${b.harvestId}`}>View listing</Link>}
+                  </div>
+                </div>
+              </div>
+            </article>
+          ))}
         </div>
       )}
 

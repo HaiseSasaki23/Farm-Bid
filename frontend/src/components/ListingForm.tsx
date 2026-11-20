@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { ImagePlus, Trash2 } from 'lucide-react';
 import type { HarvestListing, ListingInput } from '../types';
-import { CROP_SUGGESTIONS, PROVINCES, UNITS, readImage } from '../lib/format';
-import { ErrorBanner, Stars } from './ui';
+import { CROP_SUGGESTIONS, GRADE_INFO, PROVINCES, TRAITS, TRAIT_LABEL, readImage } from '../lib/format';
+import type { Grade, Trait } from '../types';
+import { ErrorBanner } from './ui';
 
 type Errors = Partial<Record<keyof ListingInput, string>>;
 
@@ -31,8 +32,9 @@ export function ListingForm({
   const [v, setV] = useState({
     cropName: initial?.cropName ?? '',
     quantity: initial ? String(initial.quantity) : '',
-    unit: initial?.unit ?? 'kg',
-    quality: initial?.quality ?? 4,
+    unit: 'kg', // all produce is sold by the kilo
+    grade: (initial?.grade ?? 'B') as Grade,
+    traits: (initial?.traits ?? []) as Trait[],
     location: initial?.location ?? '',
     harvestDate: initial?.harvestDate ?? new Date().toISOString().slice(0, 10),
     startingPrice: initial ? String(initial.startingPrice) : '',
@@ -79,20 +81,10 @@ export function ListingForm({
           {err('cropName')}
         </div>
         <div className="field">
-          <label>Quality</label>
-          <div style={{ padding: '6px 0' }}><Stars value={v.quality} onChange={(n) => set('quality', n)} large /></div>
-          <span className="hint">Rate the grade of this harvest from 1 to 5 stars.</span>
-        </div>
-        <div className="field">
-          <label htmlFor="qty">Quantity</label>
+          <label htmlFor="qty">Total quantity (kg)</label>
           <input id="qty" type="number" min="0" step="any" className={`input ${errors.quantity ? 'invalid' : ''}`} value={v.quantity} onChange={(e) => set('quantity', e.target.value)} />
+          <span className="hint">Sold as one bulk lot. Buyers bid on the whole amount.</span>
           {err('quantity')}
-        </div>
-        <div className="field">
-          <label htmlFor="unit">Unit</label>
-          <select id="unit" className="select" value={v.unit} onChange={(e) => set('unit', e.target.value)}>
-            {UNITS.map((u) => <option key={u}>{u}</option>)}
-          </select>
         </div>
         <div className="field">
           <label htmlFor="loc">Location</label>
@@ -106,7 +98,30 @@ export function ListingForm({
           {err('harvestDate')}
         </div>
         <div className="field full">
-          <label htmlFor="price">Starting price per {v.unit}</label>
+          <label id="grade-label">Grade</label>
+          <div className="grade-pick" role="radiogroup" aria-labelledby="grade-label">
+            {(['A', 'B', 'C'] as Grade[]).map((g) => (
+              <button key={g} type="button" role="radio" aria-checked={v.grade === g} className={v.grade === g ? 'on' : ''} onClick={() => set('grade', g)}>
+                <strong>Grade {g} · {GRADE_INFO[g].label}</strong>
+                <span>{GRADE_INFO[g].blurb}</span>
+              </button>
+            ))}
+          </div>
+          <span className="hint">Pick the grade that honestly matches the harvest. Buyers rate you after each sale.</span>
+        </div>
+        <div className="field full">
+          <label id="traits-label">What is true about this harvest?</label>
+          <div className="row" role="group" aria-labelledby="traits-label" style={{ gap: 14 }}>
+            {TRAITS.map((t) => (
+              <label key={t} className="check">
+                <input type="checkbox" checked={v.traits.includes(t)} onChange={(e) => set('traits', e.target.checked ? [...v.traits, t] : v.traits.filter((x) => x !== t))} />
+                {TRAIT_LABEL[t]}
+              </label>
+            ))}
+          </div>
+        </div>
+        <div className="field full">
+          <label htmlFor="price">Starting price per kg</label>
           <div className="input-affix">
             <span className="affix">₱</span>
             <input id="price" type="number" min="0" step="0.01" className={`input ${errors.startingPrice ? 'invalid' : ''}`} value={v.startingPrice} onChange={(e) => set('startingPrice', e.target.value)} />

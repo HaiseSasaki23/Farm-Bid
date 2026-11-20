@@ -26,8 +26,10 @@ export const bidService = {
     if (input.bidAmount < listing.startingPrice) {
       throw new ApiError(`Your bid must be at least the starting price of ${peso(listing.startingPrice)} per ${listing.unit}.`);
     }
-    if (input.quantity <= 0 || input.quantity > listing.quantity) {
-      throw new ApiError(`Quantity must be between 1 and ${listing.quantity} ${listing.unit}.`);
+       // Bulk sale: a bid always covers the whole lot.
+    if (input.quantity !== listing.quantity) {
+      throw new ApiError(`This is a bulk sale. Bids must be for the full ${listing.quantity.toLocaleString()} ${listing.unit}.`);
+
     }
     const bid: Bid = {
       bidId: nextId(db, 'bid'),

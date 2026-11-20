@@ -6,7 +6,7 @@ import { useQuery } from '../../hooks/useQuery';
 import { useToast } from '../../context/ToastContext';
 import { dateShort, num, peso, timeAgo } from '../../lib/format';
 import type { AIAnalysis, BidView } from '../../types';
-import { Confirm, CropArt, Empty, ErrorBanner, Loading, PriceTag, Stars, StatusBadge } from '../../components/ui';
+import { Confirm, CropArt, Empty, ErrorBanner, GradeBadge, Loading, PriceTag, StatusBadge } from '../../components/ui';
 
 export function ListingBids() {
   const id = Number(useParams().id);
@@ -65,13 +65,13 @@ export function ListingBids() {
     <>
       <BackLink />
       <div className="card card-pad row" style={{ gap: 18, marginBottom: 22 }}>
-        <div style={{ width: 96 }}><CropArt name={listing.cropName} src={listing.imagePath} size="md" /></div>
+        <div className="lb-photo"><CropArt name={listing.cropName} src={listing.imagePath} size="md" /></div>
         <div style={{ flex: 1, minWidth: 220 }}>
           <div className="row"><h1 style={{ fontSize: '1.6rem' }}>{listing.cropName}</h1><StatusBadge status={listing.status} /></div>
           <div className="muted num" style={{ marginTop: 4 }}>
             {num(listing.quantity)} {listing.unit} · {listing.location} · harvested {dateShort(listing.harvestDate)}
           </div>
-          <div style={{ marginTop: 6 }}><Stars value={listing.quality} /></div>
+          <div style={{ marginTop: 6 }}><GradeBadge grade={listing.grade} /></div>
         </div>
         <div>
           <div className="small faint" style={{ marginBottom: 4 }}>Starting price</div>
@@ -106,7 +106,7 @@ export function ListingBids() {
                         <div className="small faint">{b.buyer.buyerType} · {b.buyer.location} · {timeAgo(b.createdAt)}</div>
                       </td>
                       <td data-label="Offer"><PriceTag amount={b.bidAmount} unit={listing.unit} variant={b.status === 'Pending' && b.bidAmount === topAmount ? 'top' : 'muted-tag'} /></td>
-                      <td className="num" data-label="Quantity">{num(b.quantity)} {listing.unit}{b.quantity < listing.quantity && <div className="small faint">of {num(listing.quantity)}</div>}</td>
+                      <td className="num" data-label="Quantity">{num(b.quantity)} {listing.unit}</td>
                       <td className="num strong" data-label="Total">{peso(b.bidAmount * b.quantity)}</td>
                       <td data-label="Status"><StatusBadge status={b.status} /></td>
                       <td>
@@ -167,7 +167,6 @@ export function ListingBids() {
             <p>
               This locks the bid and creates a sale.
               {pending.length > 1 ? ` The other ${pending.length - 1} pending ${pending.length - 1 === 1 ? 'offer is' : 'offers are'} rejected automatically.` : ''}
-              {decision.bid.quantity < listing.quantity ? ` The listing closes to new bids, even though this offer covers only part of your stock.` : ''}
             </p>
           ) : (
             <p>The buyer is told their offer was rejected. This cannot be undone.</p>

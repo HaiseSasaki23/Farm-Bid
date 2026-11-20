@@ -36,10 +36,10 @@ export function Notifications() {
       />
       {error && <ErrorBanner message={error} />}
       {loading && !data ? (
-        <Loading />
+        <Loading variant="rows" />
       ) : data && data.length === 0 ? (
         <div className="card">
-          <Empty icon={<Bell size={24} />} title="No notifications yet">
+          <Empty icon={<Bell size={24} />} art="bell" title="No notifications yet">
             New bids, accepted offers, and sale updates will show up here.
           </Empty>
         </div>

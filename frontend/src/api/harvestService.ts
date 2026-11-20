@@ -5,6 +5,8 @@ import type {
   ListingStatus,
   ListingView,
 } from '../types';
+import { GRADE_INFO } from '../lib/format';
+import type { SellerRating } from '../types';
 import {
   ApiError,
   currentUserId,
@@ -17,11 +19,19 @@ import {
   type Db,
 } from './mockDb';
 
+export function sellerRating(db: Db, farmerId: number): SellerRating {
+  const rs = db.ratings.filter((r) => r.farmerId === farmerId);
+  if (rs.length === 0) return { average: null, count: 0 };
+  const avg = rs.reduce((s, r) => s + r.stars, 0) / rs.length;
+  return { average: Math.round(avg * 10) / 10, count: rs.length };
+}
+
 function toView(db: Db, l: HarvestListing): ListingView {
   return {
     ...l,
     farmer: publicUser(db.users.find((u) => u.userId === l.farmerId)),
     bidCount: db.bids.filter((b) => b.harvestId === l.harvestId && b.status === 'Pending').length,
+    farmerRating: sellerRating(db, l.farmerId),
   };
 }
 
@@ -45,8 +55,12 @@ export const harvestService = {
     if (f.minPrice != null) out = out.filter((l) => l.startingPrice >= f.minPrice!);
     if (f.maxPrice != null) out = out.filter((l) => l.startingPrice <= f.maxPrice!);
     if (f.minQuantity != null) out = out.filter((l) => l.quantity >= f.minQuantity!);
-    if (f.minQuality != null) out = out.filter((l) => l.quality >= f.minQuality!);
+    if (f.minGrade) out = out.filter((l) => GRADE_INFO[l.grade].rank >= GRADE_INFO[f.minGrade!].rank);
+    const avg = (l: HarvestListing) => sellerRating(db, l.farmerId).average ?? -1; // unrated sellers last
     switch (f.sort ?? 'newest') {
+      case 'topRated':
+        out.sort((a, b) => avg(b) - avg(a) || b.createdAt.localeCompare(a.createdAt));
+        break;
       case 'lowestPrice':
         out.sort((a, b) => a.startingPrice - b.startingPrice);
         break;

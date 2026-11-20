@@ -1,5 +1,5 @@
-import type { TransactionView } from '../types';
-import { ApiError, currentUserId, delay, notify, publicUser, read, write } from './mockDb';
+import type { RatingInput, TransactionView } from '../types';
+import { ApiError, currentUserId, delay, nextId, notify, publicUser, read, write } from './mockDb';
 
 async function finish(id: number, outcome: 'Completed' | 'Cancelled') {
   await delay(250);
@@ -32,6 +32,7 @@ export const transactionService = {
         listing: db.listings.find((l) => l.harvestId === t.harvestId)!,
         farmer: publicUser(db.users.find((u) => u.userId === t.farmerId)),
         buyer: publicUser(db.users.find((u) => u.userId === t.buyerId)),
+        rating: db.ratings.find((r) => r.transactionId === t.transactionId) ?? null,
       }))
       .sort((a, b) => b.transactionDate.localeCompare(a.transactionDate));
   },
@@ -41,4 +42,31 @@ export const transactionService = {
 
   /** POST /api/transactions/:id/cancel */
   cancel: (id: number) => finish(id, 'Cancelled'),
+
+  /** POST /api/transactions/:id/rating  (buyer rates the farmer once, after the sale is Completed) */
+  async rate(id: number, input: RatingInput): Promise<void> {
+    await delay(250);
+    const db = read();
+    const me = currentUserId();
+    const tx = db.transactions.find((t) => t.transactionId === id);
+    if (!tx) throw new ApiError('This transaction no longer exists.');
+    if (tx.buyerId !== me) throw new ApiError('Only the buyer of this sale can rate it.');
+    if (tx.status !== 'Completed') throw new ApiError('You can rate a farmer once the sale is completed.');
+    if (db.ratings.some((r) => r.transactionId === id)) throw new ApiError('You already rated this purchase.');
+    if (!Number.isInteger(input.stars) || input.stars < 1 || input.stars > 5) throw new ApiError('Choose 1 to 5 stars.');
+    const comment = input.comment?.trim().slice(0, 300) || undefined;
+    db.ratings.push({
+      ratingId: nextId(db, 'rating'),
+      transactionId: id,
+      farmerId: tx.farmerId,
+      buyerId: me,
+      stars: input.stars,
+      comment,
+      createdAt: new Date().toISOString(),
+    });
+    const buyer = db.users.find((u) => u.userId === me);
+    const crop = db.listings.find((l) => l.harvestId === tx.harvestId)?.cropName ?? 'harvest';
+    notify(db, tx.farmerId, 'TransactionUpdate', 'You received a rating', `${buyer?.fullName ?? 'A buyer'} rated your ${crop} sale ${input.stars} out of 5.`, '/farmer/transactions');
+    write(db);
+  },
 };

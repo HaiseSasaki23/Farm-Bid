@@ -7,12 +7,13 @@ import type {
   Bid,
   HarvestListing,
   NotificationType,
+  Rating,
   Transaction,
   User,
 } from '../types';
 import { emitChange } from './events';
 
-export const DB_KEY = 'bf_db_v1';
+export const DB_KEY = 'bf_db_v2'; // v2: grades, traits and ratings (old demo data is ignored)
 export const TOKEN_KEY = 'bf_token';
 
 export type UserRecord = User & { passwordHash: string };
@@ -24,6 +25,7 @@ export interface Db {
   transactions: Transaction[];
   notifications: AppNotification[];
   analyses: AIAnalysis[];
+  ratings: Rating[];
   seq: Record<string, number>;
 }
 
@@ -46,14 +48,17 @@ function seed(): Db {
   ];
 
   const listings: HarvestListing[] = [
-    { harvestId: 1, farmerId: 1, cropName: 'Rice (Jasmine)', quantity: 2000, unit: 'kg', quality: 5, location: 'Nueva Ecija', harvestDate: dateOnly(3), startingPrice: 42, description: 'Freshly milled jasmine rice from the dry-season harvest. Low moisture, well sorted, packed in 50 kg sacks.', status: 'Available', createdAt: ago(3) },
-    { harvestId: 2, farmerId: 1, cropName: 'Corn (Yellow)', quantity: 1500, unit: 'kg', quality: 4, location: 'Nueva Ecija', harvestDate: dateOnly(5), startingPrice: 18, description: 'Yellow corn, sun-dried to 14% moisture. Suitable for feed milling.', status: 'Available', createdAt: ago(5) },
-    { harvestId: 3, farmerId: 2, cropName: 'Tomato', quantity: 400, unit: 'kg', quality: 4, location: 'Benguet', harvestDate: dateOnly(1), startingPrice: 35, description: 'Firm, medium-sized tomatoes picked yesterday. Crated in 20 kg crates.', status: 'Available', createdAt: ago(1) },
-    { harvestId: 4, farmerId: 2, cropName: 'Cabbage', quantity: 800, unit: 'kg', quality: 5, location: 'Benguet', harvestDate: dateOnly(2), startingPrice: 22, description: 'Dense, clean cabbage heads from cool highland fields. No pesticide residue test failures.', status: 'Available', createdAt: ago(2) },
-    { harvestId: 5, farmerId: 3, cropName: 'Mango (Carabao)', quantity: 600, unit: 'kg', quality: 5, location: 'Guimaras', harvestDate: dateOnly(2), startingPrice: 85, description: 'Export-grade Guimaras mangoes. Sweet, even ripening, no blemishes.', status: 'Available', createdAt: ago(2) },
-    { harvestId: 6, farmerId: 3, cropName: 'Banana (Lakatan)', quantity: 35, unit: 'crate', quality: 3, location: 'Guimaras', harvestDate: dateOnly(4), startingPrice: 650, description: 'Lakatan bananas, mixed ripeness, 18 kg per crate. Best for retail within 3 days.', status: 'Available', createdAt: ago(4) },
-    { harvestId: 7, farmerId: 1, cropName: 'Eggplant', quantity: 250, unit: 'kg', quality: 3, location: 'Nueva Ecija', harvestDate: dateOnly(6), startingPrice: 28, description: 'Long purple eggplant, mixed sizes.', status: 'Reserved', createdAt: ago(6) },
-    { harvestId: 8, farmerId: 2, cropName: 'Carrot', quantity: 500, unit: 'kg', quality: 4, location: 'Benguet', harvestDate: dateOnly(9), startingPrice: 30, description: 'Washed and graded carrots.', status: 'Sold', createdAt: ago(9) },
+    { harvestId: 1, farmerId: 1, cropName: 'Rice (Jasmine)', quantity: 2000, unit: 'kg', grade: 'A', traits: ['freshlyPicked', 'sorted', 'packed'], location: 'Nueva Ecija', harvestDate: dateOnly(3), startingPrice: 42, description: 'Freshly milled jasmine rice from the dry-season harvest. Low moisture, well sorted, packed in 50 kg sacks.', status: 'Available', createdAt: ago(3) },
+    { harvestId: 2, farmerId: 1, cropName: 'Corn (Yellow)', quantity: 1500, unit: 'kg', grade: 'B', traits: ['sorted'], location: 'Nueva Ecija', harvestDate: dateOnly(5), startingPrice: 18, description: 'Yellow corn, sun-dried to 14% moisture. Suitable for feed milling.', status: 'Available', createdAt: ago(5) },
+    { harvestId: 3, farmerId: 2, cropName: 'Tomato', quantity: 400, unit: 'kg', grade: 'B', traits: ['freshlyPicked', 'packed'], location: 'Benguet', harvestDate: dateOnly(1), startingPrice: 35, description: 'Firm, medium-sized tomatoes picked yesterday. Crated in 20 kg crates.', status: 'Available', createdAt: ago(1) },
+    { harvestId: 4, farmerId: 2, cropName: 'Cabbage', quantity: 800, unit: 'kg', grade: 'A', traits: ['freshlyPicked', 'cleaned', 'sorted'], location: 'Benguet', harvestDate: dateOnly(2), startingPrice: 22, description: 'Dense, clean cabbage heads from cool highland fields. No pesticide residue test failures.', status: 'Available', createdAt: ago(2) },
+    { harvestId: 5, farmerId: 3, cropName: 'Mango (Carabao)', quantity: 600, unit: 'kg', grade: 'A', traits: ['freshlyPicked', 'sorted', 'packed'], location: 'Guimaras', harvestDate: dateOnly(2), startingPrice: 85, description: 'Export-grade Guimaras mangoes. Sweet, even ripening, no blemishes.', status: 'Available', createdAt: ago(2) },
+    { harvestId: 6, farmerId: 3, cropName: 'Banana (Lakatan)', quantity: 35, unit: 'crate', grade: 'C', traits: ['packed'], location: 'Guimaras', harvestDate: dateOnly(4), startingPrice: 650, description: 'Lakatan bananas, mixed ripeness, 18 kg per crate. Best for retail within 3 days.', status: 'Available', createdAt: ago(4) },
+    { harvestId: 7, farmerId: 1, cropName: 'Eggplant', quantity: 250, unit: 'kg', grade: 'C', traits: [], location: 'Nueva Ecija', harvestDate: dateOnly(6), startingPrice: 28, description: 'Long purple eggplant, mixed sizes.', status: 'Reserved', createdAt: ago(6) },
+    { harvestId: 8, farmerId: 2, cropName: 'Carrot', quantity: 500, unit: 'kg', grade: 'B', traits: ['cleaned', 'sorted'], location: 'Benguet', harvestDate: dateOnly(9), startingPrice: 30, description: 'Washed and graded carrots.', status: 'Sold', createdAt: ago(9) },
+    { harvestId: 9, farmerId: 1, cropName: 'Rice (Dinorado)', quantity: 800, unit: 'kg', grade: 'A', traits: ['sorted', 'packed'], location: 'Nueva Ecija', harvestDate: dateOnly(30), startingPrice: 46, description: 'Dinorado rice, 50 kg sacks.', status: 'Sold', createdAt: ago(30) },
+    { harvestId: 10, farmerId: 1, cropName: 'Corn (White)', quantity: 600, unit: 'kg', grade: 'B', traits: ['sorted'], location: 'Nueva Ecija', harvestDate: dateOnly(22), startingPrice: 20, description: 'White corn, sun-dried.', status: 'Sold', createdAt: ago(22) },
+    { harvestId: 11, farmerId: 3, cropName: 'Pineapple', quantity: 40, unit: 'crate', grade: 'A', traits: ['freshlyPicked', 'packed'], location: 'Guimaras', harvestDate: dateOnly(18), startingPrice: 520, description: 'Sweet pineapples, 12 per crate.', status: 'Sold', createdAt: ago(18) },
   ];
 
   const bids: Bid[] = [
@@ -67,11 +72,24 @@ function seed(): Db {
     { bidId: 8, harvestId: 7, buyerId: 6, bidAmount: 28, quantity: 250, status: 'Rejected', createdAt: ago(4) },
     { bidId: 9, harvestId: 8, buyerId: 4, bidAmount: 33, quantity: 500, status: 'Accepted', createdAt: ago(8) },
     { bidId: 10, harvestId: 4, buyerId: 6, bidAmount: 24, quantity: 300, status: 'Cancelled', createdAt: ago(1, 12) },
+    { bidId: 11, harvestId: 9, buyerId: 5, bidAmount: 48, quantity: 800, status: 'Accepted', createdAt: ago(29) },
+    { bidId: 12, harvestId: 10, buyerId: 6, bidAmount: 21, quantity: 600, status: 'Accepted', createdAt: ago(21) },
+    { bidId: 13, harvestId: 11, buyerId: 5, bidAmount: 540, quantity: 40, status: 'Accepted', createdAt: ago(17) },
   ];
 
   const transactions: Transaction[] = [
     { transactionId: 1, bidId: 7, farmerId: 1, buyerId: 5, harvestId: 7, agreedPrice: 30, quantity: 250, totalAmount: 7500, transactionDate: ago(2), status: 'Pending' },
     { transactionId: 2, bidId: 9, farmerId: 2, buyerId: 4, harvestId: 8, agreedPrice: 33, quantity: 500, totalAmount: 16500, transactionDate: ago(7), status: 'Completed' },
+    { transactionId: 3, bidId: 11, farmerId: 1, buyerId: 5, harvestId: 9, agreedPrice: 48, quantity: 800, totalAmount: 38400, transactionDate: ago(27), status: 'Completed' },
+    { transactionId: 4, bidId: 12, farmerId: 1, buyerId: 6, harvestId: 10, agreedPrice: 21, quantity: 600, totalAmount: 12600, transactionDate: ago(20), status: 'Completed' },
+    { transactionId: 5, bidId: 13, farmerId: 3, buyerId: 5, harvestId: 11, agreedPrice: 540, quantity: 40, totalAmount: 21600, transactionDate: ago(15), status: 'Completed' },
+  ];
+
+  // Ramon's completed sale to Joel (transaction 2) is left unrated on purpose, so you can try rating it.
+  const ratings: Rating[] = [
+    { ratingId: 1, transactionId: 3, farmerId: 1, buyerId: 5, stars: 5, comment: 'Exactly as described and packed well.', createdAt: ago(26) },
+    { ratingId: 2, transactionId: 4, farmerId: 1, buyerId: 6, stars: 4, comment: 'Good corn, pickup was a bit late.', createdAt: ago(19) },
+    { ratingId: 3, transactionId: 5, farmerId: 3, buyerId: 5, stars: 5, comment: 'Sweet and fresh. Will bid again.', createdAt: ago(14) },
   ];
 
   const notifications: AppNotification[] = [
@@ -89,7 +107,8 @@ function seed(): Db {
     transactions,
     notifications,
     analyses: [],
-    seq: { user: 6, listing: 8, bid: 10, transaction: 2, notification: 5, analysis: 0 },
+    ratings,
+    seq: { user: 6, listing: 11, bid: 13, transaction: 5, notification: 5, analysis: 0, rating: 3 },
   };
 }
 
