@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { subscribe } from '../api';
+import { subscribe } from '../services';
 
 /**
- * Loads data and quietly refreshes it whenever anything in the app (or another tab) writes.
+ * Loads API data and quietly refreshes it after a successful client mutation.
  */
 export function useQuery<T>(fn: () => Promise<T>, deps: unknown[] = []) {
   const [data, setData] = useState<T | null>(null);

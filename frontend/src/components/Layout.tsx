@@ -1,8 +1,7 @@
 import { Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Bell, ChevronDown, Gavel, HelpCircle, LayoutDashboard, LogOut, MapPin, Menu, Moon, Plus, Receipt, RotateCcw, Sparkles, Sprout, Store, Sun, Wheat, X } from 'lucide-react';
+import { Bell, ChevronDown, Gavel, HelpCircle, LayoutDashboard, LogOut, MapPin, Menu, Moon, Plus, Receipt, Sparkles, Sprout, Store, Sun, Wheat, X } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { notificationService } from '../api';
-import { resetDemoData } from '../api/mockDb';
+import { notificationService } from '../services';
 import { useAuth } from '../context/AuthContext';
 import { useQuery } from '../hooks/useQuery';
 import { useTheme } from '../hooks/useTheme';
@@ -70,12 +69,6 @@ export function AppShell({ role }: { role: Role }) {
   };
   const bell = `/${role.toLowerCase()}/notifications`;
   const themeLabel = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
-  const resetDemo = () => {
-    if (!window.confirm('Reset all demo data? Listings, bids and ratings go back to the starting examples, and you will be logged out.')) return;
-    logout();
-    resetDemoData();
-    navigate('/login', { replace: true });
-  };
   const initials = user.fullName.split(' ').map((p) => p[0]).slice(0, 2).join('');
 
   return (
@@ -155,7 +148,6 @@ export function AppShell({ role }: { role: Role }) {
         </details>
 
         <div className="drawer-foot">
-          <button className="drawer-row" onClick={resetDemo}><RotateCcw size={18} /> <span>Reset demo data</span></button>
           <button className="drawer-row" onClick={out}><LogOut size={18} /> <span>Log out</span></button>
         </div>
       </aside>

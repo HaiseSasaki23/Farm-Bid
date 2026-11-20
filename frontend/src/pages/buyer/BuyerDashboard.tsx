@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Banknote, CircleCheck, Gavel, Store } from 'lucide-react';
-import { bidService, harvestService, transactionService } from '../../api';
+import { bidService, harvestService, transactionService } from '../../services';
 import { useAuth } from '../../context/AuthContext';
 import { useQuery } from '../../hooks/useQuery';
 import { num, peso, timeAgo } from '../../lib/format';

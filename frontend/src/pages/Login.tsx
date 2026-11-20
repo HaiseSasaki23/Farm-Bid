@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, CheckCircle2, Handshake, ShieldCheck, Leaf, Mail, Lock, LogIn, Users, Tractor, ShoppingCart, RotateCcw } from 'lucide-react';
-import { resetDemoData } from '../api';
+import { Eye, EyeOff, CheckCircle2, Handshake, ShieldCheck, Leaf, Mail, Lock, LogIn } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Brand } from '../components/Layout';
 import { ErrorBanner } from '../components/ui';
@@ -54,12 +53,6 @@ export function Login() {
     }
   };
 
-  const fill = (e: string) => {
-    setEmail(e);
-    setPassword('demo1234');
-    setError(null);
-  };
-
   return (
     <div className="auth">
       <AuthHero />
@@ -94,15 +87,6 @@ export function Login() {
           </form>
           <p className="muted">New here? <Link to="/register">Create an account</Link></p>
 
-          <div className="demo-box">
-            <div className="small strong"><Users size={15} /> Demo accounts</div>
-            <div className="small muted">Password for both is demo1234. Data is stored in this browser only.</div>
-            <div className="row">
-              <button className="btn secondary sm" onClick={() => fill('farmer@demo.com')}><Tractor size={15} /> Fill farmer</button>
-              <button className="btn secondary sm" onClick={() => fill('buyer@demo.com')}><ShoppingCart size={15} /> Fill buyer</button>
-              <button className="btn ghost sm" onClick={() => { resetDemoData(); fill(''); setPassword(''); }}><RotateCcw size={15} /> Reset demo data</button>
-            </div>
-          </div>
         </div>
       </div>
     </div>

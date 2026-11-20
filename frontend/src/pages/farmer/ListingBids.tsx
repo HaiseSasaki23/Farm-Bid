@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Check, Gavel, Info, Sparkles, X } from 'lucide-react';
-import { aiAnalysisService, bidService, harvestService } from '../../api';
+import { aiAnalysisService, bidService, harvestService } from '../../services';
 import { useQuery } from '../../hooks/useQuery';
 import { useToast } from '../../context/ToastContext';
 import { dateShort, num, peso, timeAgo } from '../../lib/format';

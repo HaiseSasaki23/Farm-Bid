@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { CalendarDays, Check, Package, Receipt, Star, X } from 'lucide-react';
-import { transactionService } from '../api';
+import { transactionService } from '../services';
 import { useQuery } from '../hooks/useQuery';
 import { useToast } from '../context/ToastContext';
 import { dateShort, num, peso } from '../lib/format';

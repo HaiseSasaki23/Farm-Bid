@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Gavel, Layers, Percent, Sparkles, Wallet } from 'lucide-react';
-import { aiAnalysisService, bidService, harvestService } from '../../api';
+import { aiAnalysisService, bidService, harvestService } from '../../services';
 import { useQuery } from '../../hooks/useQuery';
 import { num, peso, timeAgo } from '../../lib/format';
 import type { AIAnalysis } from '../../types';

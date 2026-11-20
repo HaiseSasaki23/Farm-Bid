@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Calendar, Check, Gavel, Info, MapPin, Package, User } from 'lucide-react';
-import { bidService, harvestService } from '../../api';
+import { bidService, harvestService } from '../../services';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useQuery } from '../../hooks/useQuery';

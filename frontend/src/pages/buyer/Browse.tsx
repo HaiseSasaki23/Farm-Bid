@@ -1,6 +1,6 @@
 import { Search, SearchX, SlidersHorizontal, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { harvestService } from '../../api';
+import { harvestService } from '../../services';
 import { useQuery } from '../../hooks/useQuery';
 import type { ListingFilters } from '../../types';
 import { ListingCard } from '../../components/ListingCard';

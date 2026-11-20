@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Bell, CheckCheck, CircleCheck, CircleX, Gavel, Receipt, Sprout } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { notificationService } from '../api';
+import { notificationService } from '../services';
 import { useQuery } from '../hooks/useQuery';
 import { timeAgo } from '../lib/format';
 import type { NotificationType } from '../types';

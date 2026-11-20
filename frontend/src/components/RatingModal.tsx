@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { transactionService } from '../api';
+import { transactionService } from '../services';
 import { useToast } from '../context/ToastContext';
 import type { TransactionView } from '../types';
 import { ErrorBanner, Modal, Stars } from './ui';

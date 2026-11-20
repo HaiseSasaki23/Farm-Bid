@@ -5,6 +5,7 @@ import { Empty, Loading } from './components/ui';
 import { SearchX } from 'lucide-react';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
+import { VerifyEmail } from './pages/VerifyEmail';
 import { Notifications } from './pages/Notifications';
 import { Transactions } from './pages/Transactions';
 import { FarmerDashboard } from './pages/farmer/FarmerDashboard';
@@ -29,6 +30,7 @@ export function App() {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/verify-email" element={<VerifyEmail />} />
 
       <Route path="/farmer" element={<AppShell role="Farmer" />}>
         <Route index element={<FarmerDashboard />} />

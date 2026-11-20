@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.OpenApi;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,7 +31,20 @@ builder.Services.AddDbContext<FarmBidDbContext>(options =>
 // CONTROLLERS
 // ==========================================
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
+// The Vite client runs on a different local origin during development. Keep
+// browser access explicit instead of relying on a frontend proxy or disabling
+// CORS globally.
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FarmBidClient", policy =>
+        policy.WithOrigins("http://localhost:5173", "https://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
 
 // ==========================================
 // AUTHENTICATION SERVICES
@@ -162,7 +176,14 @@ if (app.Environment.IsDevelopment())
 // MIDDLEWARE
 // ==========================================
 
-app.UseHttpsRedirection();
+// The HTTP launch profile is intentionally used by the Vite development
+// server. Redirect only when an HTTPS endpoint is actually configured.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
+app.UseCors("FarmBidClient");
 
 app.UseAuthentication();
 app.UseAuthorization();

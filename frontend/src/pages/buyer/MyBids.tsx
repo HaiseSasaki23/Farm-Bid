@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CalendarClock, Gavel, Package } from 'lucide-react';
-import { bidService } from '../../api';
+import { bidService } from '../../services';
 import { useQuery } from '../../hooks/useQuery';
 import { useToast } from '../../context/ToastContext';
 import { num, peso, timeAgo } from '../../lib/format';

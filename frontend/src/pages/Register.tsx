@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { authService } from '../api';
+import { authService } from '../services';
 import type { Role } from '../types';
 import { BUYER_TYPES, PROVINCES } from '../lib/format';
 import { ErrorBanner } from '../components/ui';
@@ -37,7 +37,7 @@ export function Register() {
         farmName: role === 'Farmer' ? f.farmName : undefined,
         buyerType: role === 'Buyer' ? f.buyerType : undefined,
       });
-      navigate('/login', { state: { registered: true, email: f.email.trim().toLowerCase() } });
+      navigate('/verify-email', { state: { email: f.email.trim().toLowerCase() } });
     } catch (err) {
       setServerError(err instanceof Error ? err.message : 'Could not create the account. Try again.');
     } finally {
