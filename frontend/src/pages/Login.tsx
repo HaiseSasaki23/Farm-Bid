@@ -11,8 +11,7 @@ export function AuthHero() {
     <section className="auth-hero on-dark">
       <Brand />
       <div>
-        <h1>Harvests. Bid. <em>Prosper.</em></h1>
-        <p>Farmers list what they grow. Buyers name their price. The best offer wins, with no middleman taking a cut.</p>
+        <h1>Harvests. Bid. <em>Prosper.</em></h1>S
       </div>
       <ul className="auth-perks">
         <li><span className="ico"><Handshake size={20} /></span><div><b>Fair bidding</b><small>Get the best price</small></div></li>
