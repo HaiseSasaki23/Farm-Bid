@@ -1,1 +1,34 @@
 
+# Build output
+bin/
+obj/
+
+# Visual Studio files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Logs
+*.log
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+secrets.json
+
+# ASP.NET Core local development settings
+**/appsettings.Development.json
+**/appsettings.*.json
+!**/appsettings.json
+
+# Local database and secret files
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary testing and outdated migrations
+FarmBid.Api/Controllers/TestAuthController.cs
+FarmBid.Api/Migrations/
