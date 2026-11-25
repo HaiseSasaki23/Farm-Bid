@@ -623,7 +623,7 @@ body { background-image: radial-gradient(rgba(23, 63, 51, 0.08) 1px, transparent
   mask: linear-gradient(#000, #000) top / 100% 9px no-repeat, radial-gradient(circle at 18px 0, #000 17.5px, transparent 18px) 0 9px / 36px 13px repeat-x;
   filter: drop-shadow(0 3px 2px rgba(18, 32, 25, 0.18)); }
 @media (min-width: 881px) { .page { padding-top: 52px; } }
-@media (max-width: 880px) { .topnav, .awning { display: none; } }
+@media (max-width: 880px) { .topnav-links { display: none; } }
 
 /* A bit more character on pages and cards */
 .card { box-shadow: 0 1px 0 rgba(23, 63, 51, 0.05), 0 10px 26px -18px rgba(23, 63, 51, 0.35); }
@@ -959,3 +959,15 @@ main.page::after { content: ''; position: absolute; bottom: 0; left: calc(50% - 
 @media (max-width: 520px) { .ins-photo { width: 84px; } .lb-photo { width: 110px; } }
 .deal .rating-comment { white-space: normal; max-width: none; overflow: visible; text-overflow: clip; }
 .deal.won { border-color: var(--leaf-3); box-shadow: 0 0 0 2px rgba(63, 154, 95, 0.18); }
+
+/* Roof (awning) on phones */
+@media (max-width: 880px) {
+  .topnav-in { height: 60px; padding: 0 14px; gap: 10px; }
+  .topnav-tools { margin-left: auto; gap: 8px; }
+  .awning { top: 60px; }
+}
+
+/* Use more of wide screens */
+.page { max-width: 1520px; }
+.topnav-in { max-width: 1520px; }
+.site-foot-in, .site-foot-bar { max-width: 1520px; }
