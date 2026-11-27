@@ -85,6 +85,20 @@ public class BidController : ControllerBase
         }
     }
 
+        // GET: api/Bid/listing/5/public
+    [HttpGet("listing/{listingId:long}/public")]
+    [Authorize(Roles = "Buyer")]
+    public async Task<IActionResult> GetPublicBids(long listingId)
+    {
+        var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!long.TryParse(userIdValue, out var userId))
+        {
+            return Unauthorized();
+        }
+
+        return Ok(await _bidService.GetPublicForListingAsync(listingId, userId));
+    }
     // POST: api/Bid
     // Buyers can submit bids.
     [HttpPost]

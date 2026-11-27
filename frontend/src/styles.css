@@ -971,3 +971,10 @@ main.page::after { content: ''; position: absolute; bottom: 0; left: calc(50% - 
 .page { max-width: 1520px; }
 .topnav-in { max-width: 1520px; }
 .site-foot-in, .site-foot-bar { max-width: 1520px; }
+
+/* Open bidding */
+.top-bid { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-radius: 12px; background: var(--leaf-soft); }
+.top-bid strong { color: var(--leaf-2); font-size: 1.1rem; }
+.bid-mine { background: color-mix(in srgb, var(--mango) 14%, transparent); }
+.bid-lead { margin-left: 8px; padding: 2px 8px; border-radius: 99px; background: var(--mango); color: var(--leaf); font-size: 0.7rem; font-weight: 800; vertical-align: middle; }
+.quick-bids { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; }

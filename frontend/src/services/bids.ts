@@ -3,6 +3,7 @@ import { request } from '../lib/http';
 import { harvestService } from './listings';
 
 type ApiBid = { id: number; listingId: number; listingTitle: string; cropName?: string; buyerId: number; buyerName?: string; offeredPrice: number; requestedQuantity: number; status: Bid['status']; createdAt: string };
+export type PublicBid = { id: number; bidder: string; offeredPrice: number; requestedQuantity: number; status: Bid['status']; createdAt: string; isMine: boolean };
 
 async function mapBid(value: ApiBid): Promise<BidView> {
   let listing: HarvestListing;
@@ -20,6 +21,7 @@ export const bidService = {
   async received() { return Promise.all((await request<ApiBid[]>('/api/Bid')).map(mapBid)); },
   async mine() { return Promise.all((await request<ApiBid[]>('/api/Bid')).map(mapBid)); },
   async forListing(harvestId: number) { return (await Promise.all((await request<ApiBid[]>('/api/Bid')).filter(x => x.listingId === harvestId).map(mapBid))).sort((a, b) => b.bidAmount - a.bidAmount); },
+  async publicForListing(harvestId: number) { return request<PublicBid[]>(`/api/Bid/listing/${harvestId}/public`); },
   async accept(id: number) {
     await request(`/api/Bid/${id}/decision`, { method: 'PUT', body: JSON.stringify({ decision: 'Accept' }) });
     await request(`/api/Transaction/from-accepted-bid/${id}`, { method: 'POST' });

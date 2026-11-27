@@ -233,7 +233,35 @@ public class BidService
             bid.UpdatedAt
         };
     }
+    public async Task<List<object>> GetPublicForListingAsync(
+        long listingId,
+        long userId)
+    {
+        var bids = (await _bidRepository.GetAllAsync())
+            .Where(b => b.ListingId == listingId && b.Status != "Cancelled")
+            .ToList();
 
+        var bidderOrder = bids
+            .OrderBy(b => b.CreatedAt)
+            .Select(b => b.BuyerId)
+            .Distinct()
+            .ToList();
+
+        return bids
+            .OrderByDescending(b => b.OfferedPrice)
+            .ThenBy(b => b.CreatedAt)
+            .Select(b => (object)new
+            {
+                b.Id,
+                Bidder = "Bidder " + (bidderOrder.IndexOf(b.BuyerId) + 1),
+                b.OfferedPrice,
+                b.RequestedQuantity,
+                b.Status,
+                b.CreatedAt,
+                IsMine = b.BuyerId == userId
+            })
+            .ToList();
+    }
     // Map bid to safe response
     private static object MapBid(Bid bid)
     {
