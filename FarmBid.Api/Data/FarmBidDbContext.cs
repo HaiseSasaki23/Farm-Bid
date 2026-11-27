@@ -63,8 +63,7 @@ public class FarmBidDbContext : DbContext
 
             entity.Property(u => u.AccountStatus)
                 .HasColumnName("account_status")
-                .HasConversion<string>()
-                .HasDefaultValue(AccountStatus.Pending);
+                .HasConversion<string>();
 
             entity.Property(u => u.EmailVerificationCodeHash)
                 .HasColumnName("email_verification_code_hash")
@@ -75,19 +74,19 @@ public class FarmBidDbContext : DbContext
 
             entity.Property(u => u.EmailVerificationExpiresAt)
                 .HasColumnName("email_verification_expires_at")
-                .HasColumnType("datetime");
+                .HasColumnType("timestamp with time zone");
 
             entity.Property(u => u.EmailVerificationSentAt)
                 .HasColumnName("email_verification_sent_at")
-                .HasColumnType("datetime");
+                .HasColumnType("timestamp with time zone");
 
             entity.Property(u => u.EmailVerifiedAt)
                 .HasColumnName("email_verified_at")
-                .HasColumnType("datetime");
+                .HasColumnType("timestamp with time zone");
 
             entity.Property(u => u.CreatedAt)
                 .HasColumnName("created_at")
-                .HasColumnType("datetime");
+                .HasColumnType("timestamp with time zone");
         });
 
         // CROP CATEGORY
@@ -183,7 +182,7 @@ public class FarmBidDbContext : DbContext
 
             entity.Property(l => l.BidDeadline)
                 .HasColumnName("bid_deadline")
-                .HasColumnType("datetime");
+                .HasColumnType("timestamp with time zone");
 
             entity.Property(l => l.Description)
                 .HasColumnName("description");
@@ -195,7 +194,7 @@ public class FarmBidDbContext : DbContext
 
             entity.Property(l => l.CreatedAt)
                 .HasColumnName("created_at")
-                .HasColumnType("datetime");
+                .HasColumnType("timestamp with time zone");
 
             entity.HasOne(l => l.Farmer)
                 .WithMany()
@@ -242,11 +241,11 @@ public class FarmBidDbContext : DbContext
 
             entity.Property(b => b.CreatedAt)
                 .HasColumnName("created_at")
-                .HasColumnType("datetime");
+                .HasColumnType("timestamp with time zone");
 
             entity.Property(b => b.UpdatedAt)
                 .HasColumnName("updated_at")
-                .HasColumnType("datetime");
+                .HasColumnType("timestamp with time zone");
 
             entity.HasOne(b => b.Listing)
                 .WithMany(l => l.Bids)
@@ -279,7 +278,7 @@ public class FarmBidDbContext : DbContext
 
             entity.Property(i => i.UploadedAt)
                 .HasColumnName("uploaded_at")
-                .HasColumnType("datetime");
+                .HasColumnType("timestamp with time zone");
 
             entity.HasOne(i => i.Listing)
                 .WithMany(l => l.Images)
@@ -310,7 +309,7 @@ public class FarmBidDbContext : DbContext
 
             entity.Property(a => a.GeneratedAt)
                 .HasColumnName("generated_at")
-                .HasColumnType("datetime");
+                .HasColumnType("timestamp with time zone");
 
             entity.HasOne(a => a.Listing)
                 .WithMany(l => l.AiAnalyses)
@@ -351,7 +350,7 @@ public class FarmBidDbContext : DbContext
 
             entity.Property(r => r.ReportContent)
                 .HasColumnName("report_content")
-                .HasColumnType("longtext")
+                .HasColumnType("text")
                 .IsRequired();
 
             entity.Property(r => r.ModelName)
@@ -360,7 +359,7 @@ public class FarmBidDbContext : DbContext
 
             entity.Property(r => r.GeneratedAt)
                 .HasColumnName("generated_at")
-                .HasColumnType("datetime")
+                .HasColumnType("timestamp with time zone")
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             entity.HasOne(r => r.GeneratedByUser)
@@ -404,11 +403,11 @@ public class FarmBidDbContext : DbContext
 
             entity.Property(t => t.CreatedAt)
                 .HasColumnName("created_at")
-                .HasColumnType("datetime");
+                .HasColumnType("timestamp with time zone");
 
             entity.Property(t => t.CompletedAt)
                 .HasColumnName("completed_at")
-                .HasColumnType("datetime");
+                .HasColumnType("timestamp with time zone");
 
             entity.HasOne(t => t.Bid)
                 .WithOne(b => b.Transaction)

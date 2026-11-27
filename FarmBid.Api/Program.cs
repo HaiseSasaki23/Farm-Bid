@@ -19,10 +19,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
     ?? throw new InvalidOperationException("Database connection string is missing.");
 
 builder.Services.AddDbContext<FarmBidDbContext>(options =>
-    options.UseMySql(
-        connectionString,
-        ServerVersion.AutoDetect(connectionString)
-    )
+    options.UseNpgsql(connectionString)
 );
 
 
