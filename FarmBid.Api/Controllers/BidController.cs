@@ -181,4 +181,33 @@ public class BidController : ControllerBase
             });
         }
     }
+
+    // PUT: api/Bid/1/cancel
+    // Buyers can cancel only their own pending bids.
+    [HttpPut("{id:long}/cancel")]
+    [Authorize(Roles = "Buyer")]
+    public async Task<IActionResult> CancelBid(long id)
+    {
+        var buyerIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!long.TryParse(buyerIdValue, out var buyerId))
+            return Unauthorized();
+
+        try
+        {
+            return Ok(await _bidService.CancelAsync(id, buyerId));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
+    }
 }

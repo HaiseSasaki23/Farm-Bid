@@ -203,6 +203,37 @@ public class BidService
         };
     }
 
+    // Buyers may withdraw only their own pending offers. Accepted offers are
+    // part of a transaction and must remain immutable.
+    public async Task<object> CancelAsync(long id, long buyerId)
+    {
+        var bid = await _bidRepository.GetByIdForDecisionAsync(id);
+
+        if (bid == null)
+            throw new KeyNotFoundException("Bid not found.");
+
+        if (bid.BuyerId != buyerId)
+            throw new UnauthorizedAccessException(
+                "You are not allowed to cancel this bid.");
+
+        if (bid.Status != "Pending")
+            throw new InvalidOperationException(
+                "Only pending bids can be cancelled.");
+
+        bid.Status = "Cancelled";
+        bid.UpdatedAt = DateTime.UtcNow;
+
+        await _bidRepository.SaveChangesAsync();
+
+        return new
+        {
+            message = "Bid cancelled successfully.",
+            bid.Id,
+            bid.Status,
+            bid.UpdatedAt
+        };
+    }
+
     // Map bid to safe response
     private static object MapBid(Bid bid)
     {

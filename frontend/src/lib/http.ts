@@ -40,9 +40,14 @@ export async function request<T>(path: string, init: RequestInit = {}): Promise<
     if (response.status === 401) localStorage.removeItem(TOKEN_KEY);
     throw new ApiError(messageFrom(body, `Request failed (${response.status}).`), response.status);
   }
+  // React queries subscribe to this event. Only broadcast after the server
+  // confirms a state-changing request so the UI never displays fake updates.
+  if (!['GET', 'HEAD', 'OPTIONS'].includes((init.method ?? 'GET').toUpperCase())) emitChange();
   return body as T;
 }
 
 export function clearToken() {
   localStorage.removeItem(TOKEN_KEY);
 }
+import { emitChange } from '../services/events';
+

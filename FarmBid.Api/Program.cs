@@ -13,10 +13,8 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ==========================================
-// DATABASE CONNECTION
-// ==========================================
 
+// DATABASE CONNECTION
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Database connection string is missing.");
 
@@ -27,10 +25,8 @@ builder.Services.AddDbContext<FarmBidDbContext>(options =>
     )
 );
 
-// ==========================================
-// CONTROLLERS
-// ==========================================
 
+// CONTROLLERS
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
@@ -46,10 +42,8 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod());
 });
 
-// ==========================================
-// AUTHENTICATION SERVICES
-// ==========================================
 
+// AUTHENTICATION SERVICES
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<EmailService>();
@@ -65,10 +59,8 @@ builder.Services.AddScoped<MarketInsightsService>();
 
 builder.Services.AddScoped<AIReportService>();
 
-// ==========================================
-// JWT AUTHENTICATION
-// ==========================================
 
+// JWT AUTHENTICATION
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("JWT key is missing.");
 
@@ -110,10 +102,8 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
-// ==========================================
-// SWAGGER WITH BEARER AUTHENTICATION
-// ==========================================
 
+// SWAGGER WITH BEARER AUTHENTICATION
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(options =>
@@ -143,11 +133,8 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 
-// ==========================================
-// GEMINI AI SERVICE
-// PRESERVED FOR AI TEAMMATE
-// ==========================================
 
+// GEMINI AI SERVICE
 builder.Services.AddHttpClient<GeminiService>(client =>
 {
     client.BaseAddress = new Uri(
@@ -156,25 +143,18 @@ builder.Services.AddHttpClient<GeminiService>(client =>
     client.Timeout = TimeSpan.FromMinutes(3);
 });
 
-// ==========================================
-// BUILD APPLICATION
-// ==========================================
 
+// BUILD APPLICATION
 var app = builder.Build();
 
-// ==========================================
-// SWAGGER
-// ==========================================
 
+// SWAGGER
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// ==========================================
-// MIDDLEWARE
-// ==========================================
 
 // The HTTP launch profile is intentionally used by the Vite development
 // server. Redirect only when an HTTPS endpoint is actually configured.
@@ -188,10 +168,8 @@ app.UseCors("FarmBidClient");
 app.UseAuthentication();
 app.UseAuthorization();
 
-// ==========================================
-// MAP CONTROLLERS
-// ==========================================
 
+// MAP CONTROLLERS
 app.MapControllers();
 
 app.Run();

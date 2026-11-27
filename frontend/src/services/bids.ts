@@ -25,5 +25,5 @@ export const bidService = {
     await request(`/api/Transaction/from-accepted-bid/${id}`, { method: 'POST' });
   },
   async reject(id: number) { await request(`/api/Bid/${id}/decision`, { method: 'PUT', body: JSON.stringify({ decision: 'Reject' }) }); },
-  async cancel(_id: number) { throw new Error('Cancelling a bid is not supported by the backend yet.'); },
+  async cancel(id: number) { await request(`/api/Bid/${id}/cancel`, { method: 'PUT' }); },
 };
